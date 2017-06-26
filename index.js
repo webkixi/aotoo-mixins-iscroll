@@ -308,7 +308,7 @@ try {
         var lazy = function(blks, cb){
           clearTimeout(that.timer)
           that.timer = setTimeout(function() {
-            that.lazyLoad(blck, cb)
+            that.lazyLoad(blks, cb)
             iscr.refresh()
           }, 600);
         }
