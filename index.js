@@ -12,7 +12,7 @@
 	* })
 	*/
 try {
-  Aotoo.wrapEx('scroll', function(container, _opts, utile){
+  Aotoo.wrapEx('iscroll', function(container, _opts, utile){
     function isWindow(c){
       return c==window||c==document||c==null||!c.tagName||/body|html/i.test(c.tagName);/*判断容器是否是window*/
     }
@@ -98,6 +98,9 @@ try {
       if (typeof select == 'string') {
         temp = select.split(' ')
       }
+      if (utile.isArray(select)) {
+        temp = select
+      }
       temp.forEach( function(item){
         var char0 = item.charAt(0)
         if (char0 == '#') {
@@ -151,161 +154,182 @@ try {
       }	
     }
 
-
-    // JavaScript Document
-    /*Lazyload v1.2*/
-    /*written by Lecaf*/
-    /*update by 2011.4.8*/
-    function LazyloadClass(options){
-      this._init(options);/*初始化*/
-      this._doLoad();/*第一次加载*/
-      if(!this.elems.length)this._release();/*如果加载元素为空，释放*/
+    function isFunction(fun){
+      return typeof fun == 'function'
     }
 
-    LazyloadClass.prototype={
-      /*初始化参数*/
-      _init:function(options){
-        this.binder=null; /*加载容器对象*/
-        this.range={}; /*加载容器显示范围*/
-        this.elems=[];/*加载对象队列*/
-        this.container=null;
-        this.mode="";
-        this.lock=false;/*加载容器锁定*/
-        this.elock=false;/*加载元素锁定*/
-        this.timer=null;/*_doLoad计时器*/
-        this.options={ /*定制参数*/
-          container:window,/*加载容器*/
-          elems:null,/*加载数据集合*/
-          mode:"v",/*加载模式 v(垂直加载) h(水平加载) c(交叉加载) 默认v*/
-          ondataload:null,/*数据加载方式*/
-          ondataend:function(){}/*数据加载完毕*/
-        }
-        this.options = utile.merge(this.options,options||{});
-        this.elems=utile.toArray(this.options.elems);/*加载对象转换成数组*/
-        this.mode=this.options.mode;
-        this._onDataLoad=this.options.ondataload || function(){this.elock = false}
-        this._onDataEnd=this.options.ondataend; /*所有内容加载完执行*/
-        this._initContainer(this.options.container);/*初始化容器*/
-      },
-      /*初始化容器*/
-      _initContainer:function(c){
-        var doc=document;
-        var _this=this;
-        var isWin = isWindow(c)
-        if (isWin) c = document.documentElement;
-        
-        this.container=c;
-        /*获取容器显示范围方法*/
-        var _getContainerRange=isWin&&window.innerWidth?function(){
-          return {top:0,left:0,right:window.innerWidth,bottom:window.innerHeight}
-        }:function(){
-          return _this._getRect(c);
-        }
-        this._refreshRange=function(){
-          _this.range=_getContainerRange();
-        }
-        this._refreshRange();
-        this._scrollload=function(){
-          if(!isWin){_this._refreshRange();}
-          _this._doLoad();
-        }
-        this._resizeload=function(){
-          _this._refreshRange();
-          _this._doLoad();
-        }
-        this.binder = isWin ? window : c;
-        addEventHandler(this.binder,"scroll",this._scrollload);
-        addEventHandler(this.binder,"resize",this._resizeload);
-        
-        this._noWinScroll=function(){ /*解决刷新时window滚动条定位后造成range错误bug*/
-          _this.range=_getContainerRange();
-          removeEventHandler(window,"scroll",_this._noWinScroll);
-        }
-        if(!isWin)addEventHandler(window,"scroll",this._noWinScroll);
-      },
-      /*获取元素位置参数*/
-      _getRect:function(elem){
-        var r=elem.getBoundingClientRect();/*元素到窗口左上角距离*/
-        return {top:r.top,left:r.left,bottom:r.bottom,right:r.right}
-      },
-      /**
-       * 监控滚动方法
-       */
-      _scroll: function(scroll){
-        this.options.onscroll(scroll)
-      },
-      /*加载判断，防止多次调用
-      @lock锁定，加载过程中锁定。如果为false，执行加载；如果为true，延迟递归
-      */
-      _doLoad:function(){
-        var _this=this;
-        if(!this.lock){
-          this.lock=true;
-          setTimeout(function(){_this._loadRun()}, 100);
-        }else{
-          clearTimeout(_this.timer);
-          _this.timer=setTimeout(function(){ _this.___doLoad() }, 100); 
-        }
 
-        if (typeof this.options.onscroll == 'function') {
-          var curViewPosition = scrollView(this.container)
-          var toBottom = curViewPosition.scrollheight - (curViewPosition.scrolltop+curViewPosition.range.height)
-          curViewPosition.toBottom = toBottom
-          this._scroll(curViewPosition)
-        }
-      },
-      // 弃用callee的用法
-      ___doLoad: function(){
-        this._doLoad()
-      },
-      /*加载运行*/
-      _loadRun:function(){
-        var elems=this.elems;
-        if(elems.length){
-          for(var i=0;i<elems.length;i++){
-            var rect=this._getRect(elems[i]);
-            var side=this._isRange(this._inRange(rect));
-            if(side&&side!=0){
-              if(side==1&&!this.elock){
-                this.elock=true;
-                this._onDataLoad(elems[i]);
-                elems.splice(i--,1);/*加载完之后将该对象从队列中删除*/
-              }else{break;}
-            }
+    var os = (function( ua ) {
+      var ret = {},
+      android = ua.match( /(?:Android);?[\s\/]+([\d.]+)?/ ),
+      ios = ua.match( /(?:iPad|iPod|iPhone).*OS\s([\d_]+)/ );
+      ret.mobile = (() => !!(android||ios))()
+      return ret;
+    })( navigator.userAgent )
+
+    function isPassive() {
+      var supportsPassiveOption = false;
+      try {
+        addEventListener("test", null, Object.defineProperty({}, 'passive', {
+          get: function () {
+            supportsPassiveOption = true;
           }
-          if(!elems.length){
-            this._release();
-          }
-        }
-        this.lock=false;
-      },
-      /*判断对象相对容器位置*/
-      _inRange:function(rect){
-        var range=this.range;
-        var side={
-          v : rect.top<=range.bottom ? rect.bottom>=range.top ? "in" : "" : "bottom",/*垂直位置*/
-          h : rect.left<=range.right ? rect.right>=range.left ? "in" : "" : "right" /*水平位置*/
-        };
-        return side;
-      },
-      _isRange:function(side){
-        /*1：加载 -1：跳出循环 0：不加载执行下一个*/
-        return {
-          v:side.v ? side.v=="in"?1:-1 : 0,  // 0 表示 top
-          h:side.h ? side.h=="in"?1:-1 : 0,  // 0 表示 left
-          c:side.v&&side.h ? side.v=="in"&&side.h=="in"? 1:side.v!="in"?-1:0 : 0
-        }[this.mode||"c"]
-      },
-      /*释放*/
-      _release:function(){
-        if (!this.options.onscroll) {
-          removeEventHandler(this.binder,"scroll",this._scrollload);
-          removeEventHandler(this.binder,"resize",this._resizeload);
-        } 
-        this._onDataEnd();
+        }));
+      } catch(e) {}
+      return supportsPassiveOption;
+    }
+
+    function preventDefault(pred){
+      document.addEventListener('touchmove', function (e) {
+        pred ? e.preventDefault() : ''
+      }, isPassive() ? {
+        capture: false,
+        passive: false
+      } : false);
+    }
+
+    var oriPositionY = 0
+    var oriPositionX = 0
+    function getScrollDirection(iscrl, opts){
+      var direction
+      if (!opts.direction) opts.direction = 'Y'
+
+      if (opts.direction == 'Y') {
+        direction = iscrl.y < oriPositionY ? 'down' : 'up'
+        oriPositionY = iscrl.y
+        return direction
+        // return [iscrl.y, direction];
+      }
+
+      if (opts.direction == 'X') {
+        direction = iscrl.x < oriPositionX ? 'left' : 'right'
+        oriPositionX = iscrl.x
+        return direction
+        // return [iscrl.x, direction]
+      }
+      else {
+        var _directionY = iscrl.y < oriPositionY ? 'down' : 'up'
+        var _directionX = iscrl.x < oriPositionX ? 'left' : 'right'
+        oriPositionY = iscrl.y
+        oriPositionX = iscrl.x
+        return _directionX + ' ' + _directionY
+        // return [iscrl.x, iscrl.y]
       }
     }
 
+    function getBlocks(container, elems){
+      if (elems){
+        return getSiblingElements(container, elems)
+      }
+    }
+
+    function getRange(c){
+      return isWindow(c)&&window.innerWidth?function(){
+        return {top:0,left:0,right:window.innerWidth,bottom:window.innerHeight}
+      }:function(){
+        return getRect(c);
+      }
+    }
+
+    function getRect(elem){
+      var r=elem.getBoundingClientRect();/*元素到窗口左上角距离*/
+      return {top:r.top,left:r.left,bottom:r.bottom,right:r.right}
+    }
+
+    function isRange(side, mode){
+      /*1：加载 -1：跳出循环 0：不加载执行下一个*/
+      return {
+        v:side.v ? side.v=="in"?1:-1 : 0,
+        h:side.h ? side.h=="in"?1:-1 : 0,
+        c:side.v&&side.h ? side.v=="in"&&side.h=="in"? 1:side.v!="in"?-1:0 : 0
+      }[mode||"c"]
+    }
+
+    function inRange(range, rect){
+      return {
+        v : rect.top<=range.bottom ? rect.bottom>=range.top ? "in" : "" : "bottom",/*垂直位置*/
+        h : rect.left<=range.right ? rect.right>=range.left ? "in" : "" : "right" /*水平位置*/
+      }
+    }
+
+    var $iscroll = require('iscroll/build/iscroll-probe')
+    function Iscroll(dom, opts){
+      preventDefault(opts.preventDefault)
+      this.blocks = getBlocks(dom, opts.elements)
+      this.container = dom
+      this.opts = utile.cloneDeep( opts||{} )
+      this.timer = ''
+      
+      this.onscroll = this.opts.onscroll
+      this.onscrollend = this.opts.onscrollend
+      this.onpulldown = this.opts.onpulldown
+
+      delete opts.onscroll
+      delete opts.onscrollend
+      delete opts.onpulldown
+      this.iscr = new $iscroll(dom, opts)
+      this.run()
+    }
+
+    Iscroll.prototype = {
+
+      lazyLoad: function(blks, cb) {
+        var that = this
+        if (isFunction(blks)) {
+          cb = blks
+          blks = undefined
+        }
+        this.blocks = blks || this.blocks;
+        var blocks = this.blocks;
+        var range = getRange(this.container)()
+        if (blocks && blocks.length) {
+          blocks.map(function(elem, ii){
+            var rect = getRect(elem)
+            var side = isRange(inRange(range, rect))
+            if(side&&side!=0){
+              // if(side==1&&!this.elock){
+              if(side==1){
+                if (isFunction(cb)) cb.call(that, elem)
+                blocks.splice(ii--,1); /*加载完之后将该对象从队列中删除*/
+              }
+            }
+          })
+        }
+      },
+
+      run: function(){
+        var opts = this.opts
+        var blocks = this.blocks
+        var iscr = this.iscr
+        var onscroll = this.onscroll
+        var onpulldown = this.onpulldown
+        var onscrollend = this.onscrollend
+        var that = this
+        var lazy = function(blks, cb){
+          clearTimeout(that.timer)
+          that.timer = setTimeout(function() {
+            that.lazyLoad(blck, cb)
+            iscr.refresh()
+          }, 600);
+        }
+        iscr.refresh()
+
+        if (isFunction(onscroll) || isFunction(onpulldown) ) {
+          iscr.on('scroll', function(){
+            var direction = getScrollDirection(iscr, opts)
+            onscroll ? onscroll.call(iscr, lazy, direction) : ''
+            onpulldown ? onpulldown.call(iscr, direction, lazy) : ''
+          })
+        }
+
+        iscr.on('scrollEnd', function(){
+          if (isFunction(onscrollend)) {
+            onscrollend.call(iscr, lazy)
+            setTimeout(function(){ iscr.refresh() },200)
+          }
+        })
+      }
+    }
 
     /*
     * $lazy 懒加载
@@ -319,36 +343,29 @@ try {
     *   }
     * })
     */
-    function noop(cb) {
-      return function (elem) {
-        if (typeof cb == 'function') {
-          cb.call(this, elem);
-        }
-        this.elock = false;
-      };
-    }
 
-    var _container = $id(_opts.container || container)
+    var _container = $id(_opts.container || container);
     var def = {
+      mouseWheel:true,
+      click: true,
+      probeType: 3,
+      disableTouch: os.mobile ? false : true,
+      disablePointer: os.mobile ? true : false,
       container: _container,
       elements: '',
-      mode: 'v',
-      onscroll: '',
-      oninrange: noop(_opts.oninrange),
-      onloaded: noop(_opts.onloaded)
+      preventDefault: false,
+      direction: 'Y',
+      onscroll: _opts.onscroll,
+      onpulldown: _opts.onpulldown,
+      onscrollend: _opts.onscrollend
     };
     var _options = utile.merge(def, _opts || {});
-
-    if (typeof _options.elements == 'string') {
-      _options.elems = getSiblingElements(_container, _options.elements) || _container.getElementsByTagName('img')
-    }
-    _options.ondataload = _options.oninrange
-    _options.ondataend = _options.onloaded
-    new LazyloadClass(_options);
+    return new Iscroll(_container, _options)
   })
 
   module.exports = {}
 } catch (error) {
+  console.error(error)
   console.error('依赖全局变量Aotoo，请参考 https://github.com/webkixi/aotoo');
 }
 
