@@ -1,5 +1,5 @@
-# aotoo-mixins-scroll
-mixin scroll, about Listen to the scroll event and lazyload something"
+# aotoo-mixins-iscroll
+mixin iscroll, Integrated the iscroll library to aotoo
 
 ## Dependencies
 
