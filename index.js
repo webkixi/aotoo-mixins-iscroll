@@ -354,6 +354,7 @@ try {
       container: _container,
       elements: '',
       preventDefault: false,
+      preventDefaultException: { tagName: /^(INPUT|TEXTAREA|BUTTON|SELECT|A)$/ },
       direction: 'Y',
       onscroll: _opts.onscroll,
       onpulldown: _opts.onpulldown,
