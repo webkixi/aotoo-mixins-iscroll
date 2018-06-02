@@ -348,7 +348,7 @@ function inRange(range, rect) {
  */
 try {
   Aotoo.wrapEx('iscroll', function (container, _opts, utile) {
-    function Iscroll(dom, opts) {
+    function aotooIscroll(dom, opts) {
       preventDefault(opts.preventDefault)
       this.blocks = getBlocks(dom, opts.elements)
       this.container = dom
@@ -366,7 +366,7 @@ try {
       this.run()
     }
 
-    Iscroll.prototype = {
+    aotooIscroll.prototype = {
       lazyLoad: function (blks, cb) {
         var that = this
         if (isFunction(blks)) {
@@ -459,7 +459,7 @@ try {
       onscrollend: _opts.onscrollend
     };
     var _options = utile.merge(def, _opts || {});
-    return new Iscroll(_container, _options)
+    return new aotooIscroll(_container, _options)
   })
 
   module.exports = {}

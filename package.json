@@ -1,6 +1,6 @@
 {
   "name": "aotoo-mixins-iscroll",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "mixin iscroll, Integrated the iscroll library to aotoo",
   "main": "index.js",
   "scripts": {

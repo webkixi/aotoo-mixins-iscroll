@@ -3,21 +3,11 @@ mixin iscroll, Integrated the iscroll library to aotoo
 
 ## Dependencies
 
-Pls install `aotoo` first, and make `aotoo` as a global variable with the variable name `Aotoo`
-```js
-npm install aotoo  or
-yarn add aotoo
-
-// ------------ some js file
-
-import aotoo from aotoo
-window.Aotoo = aotoo
-...
-```
 
 ## Install
 ```
 // install
+npm install aotoo-common
 npm install aotoo-mixins-iscroll --save
 ```
 
@@ -25,49 +15,48 @@ npm install aotoo-mixins-iscroll --save
 ```js
 require('aotoo-mixins-scroll')
 
-// Aotoo inject library
-// Refer to https://github.com/webkixi/aotoo-inject
-const inject = Aotoo.inject()
-
-// it is a plugin of aotoo
-import treex from 'aotoo-react-treex'
+// inject css into head
+Aotoo.inject.css( `
+  .iscrollBox{
+    height: 400px;
+    overflow: hidden;
+  }
+`)
 
 /*
- I. treeTest.render() is a jsx  
+ I. listTest.render() is a jsx  
  
- II. treeTest.render(id) will mount jsx into the dom about that id, like React.render(...)  
+ II. listTest.render(id) will mount jsx into the dom about that id, like React.render(...)  
  
- III. treeTest.render(id, callback)  callback will be executed after jsx be mounted into the dom about that id  
+ III. listTest.render(id, callback)  callback will be executed after jsx be mounted into the dom about that id  
 */
-const treeTest = treex({
-  props: { 
-    data: [
-      {title: '1111'},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: <div className="img">abcdefg</div>},
-      {title: '2222'},
-      {title: '1111'},
-      {title: '2222'},
-      {title: '3333'} 
-    ]
-  }
-})
-
-function IscrollBox(props){
-  return <div className='iscrollBox'>{treeTest.render()}</div>
+const listData = {
+  data: [
+    {title: '1111'},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: <div className="img">abcdefg</div>},
+    {title: '2222'},
+    {title: '1111'},
+    {title: '2222'},
+    {title: '3333'} 
+  ]
 }
 
-const IscrollList = Aotoo.iscroll(<IscrollBox />, {
+const IscrollList = Aotoo.iscroll((
+  <div className='iscrollBox'>
+    <Aotoo.list data={listData}/>
+  </div>
+), {
   elements: '.img',
   onscroll: function(lazy, direction){
     console.log('====== 1111');
@@ -77,18 +66,6 @@ const IscrollList = Aotoo.iscroll(<IscrollBox />, {
   }
 })
 
-// inject css into head
-inject.css(
-`
- .iscrollBox{
-    height: 400px;
-    overflow: hidden;
-  }
-`
-, function(){
-  // mount jsx into dom that id is test
-  Aotoo.render(<IscrollList />, 'test')
-})
-
+Aotoo.render(<IscrollList />, 'test')
 ```
 
